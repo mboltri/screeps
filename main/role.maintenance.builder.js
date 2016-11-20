@@ -2,12 +2,12 @@ var RoleCommon = require('role.common');
 var Log = require('logging.log');
 
 var moduleName = 'role.maintenance.builder';
-var Role = {}
+var Role = {};
 module.exports = Role;
 
 Role.roleName = 'builder';
-Role.desired = 3;
-Role.priority = 3;
+Role.desired = 1;
+Role.priority = 6;
 
 Role.run = function(creep) {
 
@@ -15,11 +15,9 @@ Role.run = function(creep) {
 
     if(creep.memory.building && creep.carry.energy == 0) {
         creep.memory.building = false;
-        creep.say('harvesting');
     }
     if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
         creep.memory.building = true;
-        creep.say('building');
     }
 
     if(creep.memory.building) {
@@ -29,7 +27,7 @@ Role.run = function(creep) {
                 creep.moveTo(targets[0]);
             }
         } else { //if nothing to build, behave like a harvester
-            roleHarvester.run(creep);
+            require('role.resource.harvester').run(creep);
         }
     } else {
         var sources = creep.room.find(FIND_SOURCES);
@@ -37,4 +35,12 @@ Role.run = function(creep) {
             creep.moveTo(sources[0]);
         }
     }
-}
+};
+
+Role.create = function(spawn) {
+    RoleCommon.createGeneric(spawn, Role.roleName);
+};
+
+Role.constructBody = function(energyLimit) {
+    return RoleCommon.simpleBody;
+};

@@ -6,15 +6,12 @@ var RoleManager = {};
 module.exports = RoleManager;
 
 RoleManager.assignWorkByRole = function(creep) {
-    for(let i in RoleIndex) {
-        var role = RoleIndex[i];
+    RoleIndex.forEach( function(role) {
         if(creep.memory.roleName == role.roleName) {
-            if(creep.memory.fallback = role.run(creep)) {
-                role.fallback.run(creep);
-            }
+            role.run(creep);
         }
-    }
-}
+    });
+};
 
 RoleManager.getCreepCountByRolesInRoom = function(room) {
     
@@ -27,24 +24,17 @@ RoleManager.getCreepCountByRolesInRoom = function(room) {
         Log.debug('init getCreepCountForAllRoles, roleNames='+roleNames, moduleName);
     }
     
-    for(var i in roleNames) {
-        var roleName = roleNames[i];
-        if(Log.isDebugEnabled()) {
-            Log.debug('i='+i+' before pull. arrLen='+arrLen+', creepRoles.length='+creepRoles.length, moduleName);
-        }
+    roleNames.forEach( function(roleName) {
         _.pull(creepRoles, roleName);
-        if(Log.isDebugEnabled()) {
-            Log.debug('i='+i+' after pull. arrLen='+arrLen+', creepRoles.length='+creepRoles.length, moduleName);
-        }
         creepMap[roleName] = arrLen - creepRoles.length;
         arrLen = creepRoles.length;
-    }
+    });
     if(Log.isInfoEnabled()) {
         Log.info('creep counts='+JSON.stringify(creepMap), moduleName);
     }
     return creepMap;
-}
+};
 
 RoleManager.getCreepCountForRole = function(roleName) {
  return _.filter(Game.creeps, (creep) => creep.memory.roleName == roleName);
-}
+};

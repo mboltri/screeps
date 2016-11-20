@@ -4,7 +4,7 @@ module.exports = Log;
 Log.LOG_LEVELS = {DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4};
 Log.INCLUDE_MODULES_ALL = 'ALL';
 
-Log.level = Log.LOG_LEVELS.DEBUG;
+Log.level = Log.LOG_LEVELS.WARN;
 Log.includeModules = Log.INCLUDE_MODULES_ALL;
 
 Log.isDebugEnabled = function() {

@@ -2,22 +2,20 @@ var RoleCommon = require('role.common');
 var Log = require('logging.log');
 
 var moduleName = 'role.maintenance.upgrader';
-var Role = {}
+var Role = {};
 module.exports = Role;
 
 Role.roleName = 'upgrader';
-Role.desired = 3;
-Role.priority = 4;
+Role.desired = 2;
+Role.priority = 5;
 
 Role.run = function(creep) {
    RoleCommon.run(creep) ;
    if(creep.memory.upgrading && creep.carry.energy == 0) {
         creep.memory.upgrading = false;
-        creep.say('harvesting');
     }
     if(!creep.memory.upgrading && creep.carry.energy == creep.carryCapacity) {
         creep.memory.upgrading = true;
-        creep.say('upgrading');
     }
 
     if(creep.memory.upgrading) {
@@ -31,9 +29,12 @@ Role.run = function(creep) {
             creep.moveTo(sources[0]);
         }
     }
-    return 0;
-}
+};
 
 Role.create = function(spawn) {
     RoleCommon.createGeneric(spawn, Role.roleName);
-}
+};
+
+Role.constructBody = function(energyLimit) {
+    return RoleCommon.simpleBody;
+};

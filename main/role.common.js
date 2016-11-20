@@ -6,8 +6,10 @@ module.exports = RoleCommon;
 
 RoleCommon.run = function(creep) {
     
-}
+};
 
 RoleCommon.createGeneric = function(spawn, roleName) {
-    spawn.createCreep([MOVE, WORK, CARRY], null, {'roleName': roleName})
-}
+    spawn.createCreep(RoleCommon.simpleBody, null, {'roleName': roleName})
+};
+
+RoleCommon.simpleBody = [MOVE, CARRY, WORK];
