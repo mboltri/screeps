@@ -27,7 +27,7 @@ Role.run = function(creep) {
                 creep.moveTo(targets[0]);
             }
         } else { //if nothing to build, behave like a harvester
-            roleHarvester.run(creep);
+            require('role.resource.harvester').run(creep);
         }
     } else {
         var sources = creep.room.find(FIND_SOURCES);
