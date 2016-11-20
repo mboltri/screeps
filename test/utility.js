@@ -10,4 +10,4 @@ Utility.gc = function() {
             delete Memory.creeps[name];
         }
     }
-}
+};
