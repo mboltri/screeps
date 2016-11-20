@@ -82,15 +82,16 @@ SpawnManager._addRoleToQueue = function(room, role, creepsInRoom, rolesInQueue, 
         Log.debug('room "' + room.name + '": ' + inRoom + ' ' + role.roleName + 's exist, ' + 
           inQueue + ' are in queue, ' +role.desired + ' are desired', moduleName);
     }
-    if(inRoom + inQueue < role.desired) {
+    var needed = role.desired - (inRoom + inQueue);
+    if(needed > 0) {
         var insertIndex = _.sortedIndex(_.map(spawnQueue, 'priority'), role.priority);
-        for(var i = 0; i < (role.desired - inRoom); i++) {
+        for(var i = 0; i < needed; i++) {
             spawnQueue.splice(insertIndex, 0, role);
             rolesAdded++;
         }
         room.memory.spawnQueue = spawnQueue;
         if(Log.isDebugEnabled()) {
-            Log.debug('Added ' + (role.desired - inRoom) + ' ' + role.roleName + '(s) to queue', moduleName);
+            Log.debug('Added ' + needed + ' ' + role.roleName + '(s) to queue', moduleName);
         }
     }
 };
