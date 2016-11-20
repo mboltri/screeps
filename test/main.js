@@ -7,8 +7,6 @@ var moduleName = 'main';
 
 module.exports.loop = function () {
 
-    Memory.tickCounter += 1;
-
     Utility.gc();
     
     //console.log(Memory.myRooms['W62N27'].spawnQueue);
@@ -16,5 +14,5 @@ module.exports.loop = function () {
     
     _.values(Game.creeps).forEach( function(creep) {
         RoleManager.assignWorkByRole(creep);
-    })
-}
+    });
+};
