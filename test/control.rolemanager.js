@@ -6,7 +6,7 @@ var RoleManager = {};
 module.exports = RoleManager;
 
 RoleManager.assignWorkByRole = function(creep) {
-    RoleIndex.forEach( function(role) {
+    _.forEach(RoleIndex, function(role) {
         if(creep.memory.roleName == role.roleName) {
             role.run(creep);
         }
@@ -24,7 +24,7 @@ RoleManager.getCreepCountByRolesInRoom = function(room) {
         Log.debug('init getCreepCountForAllRoles, roleNames='+roleNames, moduleName);
     }
     
-    roleNames.forEach( function(roleName) {
+    _.forEach(roleNames, function(roleName) {
         _.pull(creepRoles, roleName);
         creepMap[roleName] = arrLen - creepRoles.length;
         arrLen = creepRoles.length;

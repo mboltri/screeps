@@ -1,5 +1,6 @@
 var RoleCommon = require('role.common');
 var Log = require('logging.log');
+var ResourceManager = require('control.resourcemanager');
 
 var moduleName = 'role.maintenance.builder';
 var Role = {};
@@ -19,9 +20,8 @@ Role.run = function(creep) {
     if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
         creep.memory.building = true;
     }
-
+    var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
     if(creep.memory.building) {
-        var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
         if(targets.length) {
             if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(targets[0]);
@@ -30,9 +30,15 @@ Role.run = function(creep) {
             require('role.resource.harvester').run(creep);
         }
     } else {
-        var sources = creep.room.find(FIND_SOURCES);
-        if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0]);
+        if(creep.memory.assignedSourceId === undefined) {
+            ResourceManager.assignSource(creep);
+        }
+        var source = Game.getObjectById(creep.memory.assignedSourceId);
+        if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(source);
+        }
+        if(targets.length) {
+            creep.build(targets[0])
         }
     }
 };
@@ -42,5 +48,5 @@ Role.create = function(spawn) {
 };
 
 Role.constructBody = function(energyLimit) {
-    return RoleCommon.simpleBody;
+    return RoleCommon.SIMPLE_BODY;
 };

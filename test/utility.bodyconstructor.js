@@ -30,14 +30,14 @@ BodyConstructor.constructBody = function(priorityMap, energyLimit, partLimitMap)
     var partLimits = partLimitMap === undefined ? [] : partLimitMap;
     
     //build part limit map
-    partsToInclude.forEach( function(bodyPart) {
+    _.forEach(partsToInclude, function(bodyPart) {
         if(partLimits[bodyPart] === undefined) {
             partLimits[bodyPart] = BodyConstructor.BODY_PART_LIMIT;
         }
     });
     
     for(var i = 0; energyConsumed < energyLimit && constructedBody.length < BodyConstructor.BODY_PART_LIMIT && i < 1000; i++) {
-        partsToInclude.forEach( function(bodyPart) {
+        _.forEach(partsToInclude, function(bodyPart) {
             if(i % priorityMap[bodyPart] === 0) {
                 var newCost = energyConsumed + BODYPART_COST[bodyPart];
                 if(newCost <= energyLimit && partLimits[bodyPart] > 0) {

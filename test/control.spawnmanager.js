@@ -6,10 +6,11 @@ var moduleName = 'control.spawnmanager';
 var SpawnManager = {};
 module.exports = SpawnManager;
 
-SpawnManager.SPAWN_QUEUE_REFRESH_RATE = 3; //how many ticks to wait before reevaluating the Spawn Queue
+SpawnManager.SPAWN_QUEUE_REFRESH_RATE = 10; //how many ticks to wait before reevaluating the Spawn Queue
 
 SpawnManager.manageSpawns = function() {
-    _.values(Game.rooms).forEach( function(room) {
+    var rooms = _.values(Game.rooms);
+    _.forEach(rooms, function(room) {
         if(Game.time % SpawnManager.SPAWN_QUEUE_REFRESH_RATE === 0) {
             SpawnManager.manageSpawnQueue(room);
         }
@@ -17,32 +18,42 @@ SpawnManager.manageSpawns = function() {
         if(!spawnQueue.length) {
             room.memory.emptySpawnTimer++;
             if(room.memory.emptySpawnTimer > 20 && room.memory.emptySpawnTimer % 10 === 0) {
-              if(Log.isWarnEnabled()) {
-                Log.warn('room "' + room.name + '"\'s spawnQueue has been empty for ' + 
-                  room.memory.emptySpawnTimer + ' ticks')
-              }
+                if(Log.isWarnEnabled()) {
+                    Log.warn('room "' + room.name + '"\'s spawnQueue has been empty for ' + 
+                        room.memory.emptySpawnTimer + ' ticks');
+                }
             }
             return; //if the spawn queue is empty, no need for further evaluations
         }
         room.memory.emptySpawnTimer = 0;
-        _.values(room.find(FIND_MY_SPAWNS)).forEach( function(spawn) {
-          if(!(spawn.spawning || 0) && spawnQueue.length) {
-              var toSpawnObject = room.memory.spawnQueue.shift();
-              var toSpawnProto = _.find(RoleIndex, {'roleName': toSpawnObject.roleName});
-              if(spawn.canCreateCreep(toSpawnProto.constructBody(spawn.energyCapacity)) === 0) {
-                  if(Log.isInfoEnabled() && spawn.spawning) {
-                      Log.info('spawn "' + spawn.name + '" is spawning a new ' + 
+        var spawns = _.values(room.find(FIND_MY_SPAWNS));
+        _.forEach(spawns, function(spawn) {
+            if(!(spawn.spawning || 0) && spawnQueue.length) {
+                var toSpawnObject = room.memory.spawnQueue.shift();
+                var toSpawnProto = _.find(RoleIndex, {'roleName': toSpawnObject.roleName});
+                var body = toSpawnProto.constructBody(spawn.energyCapacity);
+                var code = spawn.canCreateCreep(body);
+                if(code === OK) {
+                    if(Log.isInfoEnabled() && spawn.spawning) {
+                        Log.info('spawn "' + spawn.name + '" is spawning a new ' + 
                         toSpawnProto.roleName, moduleName);
-                  }
-                  toSpawnProto.create(spawn) ;
-              } else {
-                  if(Log.isDebugEnabled()) {
-                      Log.debug('spawn "' + spawn.name + '" cannot spawn a ' + 
-                        toSpawnProto.roleName + ' right now', moduleName);
-                  }
-                  room.memory.spawnQueue.unshift(toSpawnObject);
-              }
-          }
+                    }
+                    toSpawnProto.create(spawn) ;
+                } else {
+                    if(code === ERR_NOT_ENOUGH_ENERGY || code === ERR_BUSY){
+                        if(Log.isDebugEnabled()) {
+                            Log.debug('spawn "' + spawn.name + '" cannot spawn a ' + 
+                                toSpawnProto.roleName + ' right now (code ' + code + ')' , moduleName);
+                        }
+                    } else {
+                        if(Log.isErrorEnabled()) {
+                            Log.error('spawn "' + spawn.name + '" cannot spawn a ' + 
+                                toSpawnProto.roleName + ' right now due to an error (code ' + code + ')' , moduleName);
+                        }
+                    }
+                    room.memory.spawnQueue.unshift(toSpawnObject);
+                }
+            }
         });
     });
 };
@@ -59,7 +70,7 @@ SpawnManager.manageSpawnQueue = function(room) {
     var creepsInRoom = RoleManager.getCreepCountByRolesInRoom(room);
     var rolesInQueue = _.countBy(_.map(spawnQueue, 'roleName'));
     var rolesAdded = 0;
-    RoleIndex.forEach( (role) => SpawnManager._addRoleToQueue(
+    _.forEach(RoleIndex, (role) => SpawnManager._addRoleToQueue(
       room, role, creepsInRoom, rolesInQueue, spawnQueue, rolesAdded)
     );
     if(rolesAdded > 0) {

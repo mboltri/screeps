@@ -36,5 +36,5 @@ Role.create = function(spawn) {
 };
 
 Role.constructBody = function(energyLimit) {
-    return RoleCommon.simpleBody;
+    return RoleCommon.SIMPLE_BODY;
 };
