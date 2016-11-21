@@ -1,4 +1,4 @@
-var Utility = require('utility');
+var PositionUtility = require('utility.position');
 var CreepUtility = require('utility.creep');
 var Log = require('logging.log');
 
@@ -16,11 +16,13 @@ EnergySourceManager.assignSource = function(sourceMiner, target) {
     
     //find sources based on the index in memory
     var indexedSources = _.values(room.memory.resourceIndex.energy.sources);
+    if(indexedSources.length === 0) {
+        EnergySourceManager.createEnergySourceIndex(room);    
+    }    
     //only take the sources with the lowest current drain on their energy
     var assignableSources = _.filter(indexedSources, 
         (source) => EnergySourceManager._isAssignableSource(source, room)
     );
-    //var minEnergyDrain = _.min(_.map(assignableSources, 'energyDrain')); 
     if(Log.isDebugEnabled()) {
         Log.debug('room ' + room.name + ' has ' + indexedSources.length + ' energy sources; ' + 
             assignableSources.length + ' can be assigned');
@@ -68,13 +70,16 @@ EnergySourceManager._isAssignableSource = function(source, room) {
 };
 
 EnergySourceManager._determineTargetSource = function(assignableSources, pos) {
+    var minEnergyDrain = _.min(_.map(assignableSources, 'energyDrain')); 
+    var minAssignableSource = _.filter(assignableSources, {'energyDrain': minEnergyDrain})
+    
     var targetSource;
-    if(assignableSources.length === 0) {
+    if(minAssignableSource.length === 0) {
         return null;
-    } else if(assignableSources.length === 1) {
-        targetSource = assignableSources[0].id;
+    } else if(minAssignableSource.length === 1) {
+        targetSource = minAssignableSource[0].id;
     } else { //if there are multiple options, take the closest one
-        var sourceObjects = _.map(assignableSources, (target) => Game.getObjectById(target.id) );
+        var sourceObjects = _.map(minAssignableSource, (target) => Game.getObjectById(target.id) );
         targetSource = pos.findClosestByPath(sourceObjects).id;
     }
     return targetSource;
@@ -90,10 +95,15 @@ EnergySourceManager.createEnergySourceIndex = function(room){
 };
 
 EnergySourceManager._addEnergySourceToIndex = function(source, index) {
-    var passableTerrain = Utility.countPassableTerrain(Utility.getTerrainAroundObject(source));
+    var passableTerrain = PositionUtility.countPassableTerrain(PositionUtility.getTerrainAroundObject(source));
     index[source.id] = {id: source.id, assigned: [], maxAssigned: passableTerrain, energyDrain: 0, pos: source.pos};
 };
 
 EnergySourceManager.handleCreepDeath = function(creep) {
-    //TODO
+    var assignedSourceId = creep.assignedSourceId;
+    if(assignedSourceId !== undefined) {
+        var source = Game.getObjectById(assignedSourceId);
+        _.pull(source.room.memory.resourceIndex.energy.sources[assignedSourceId].assigned, creep.name);
+        source.room.memory.resourceIndex.energy.sources[assignedSourceId].energyDrain -= creep.energyDrain;
+    }
 };

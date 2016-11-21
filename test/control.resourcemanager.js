@@ -1,15 +1,14 @@
 var EnergySourceManager = require('control.resourcemanager.energysource');
-var Utility = require('utility');
 var Log = require('logging.log');
 
 var moduleName = 'control.resourcemanager';
 var ResourceManager = {};
 module.exports = ResourceManager;
 
-ResourceManager.assignSource = function(sourceMiner) {
+ResourceManager.assignSource = function(sourceMiner, target) {
     ResourceManager._createResourceIndex(sourceMiner.room);
     sourceMiner.room.memory.resourceIndex.canSupportMiners = ResourceManager._canSupportMiners(sourceMiner.room);
-    return EnergySourceManager.assignSource(sourceMiner);
+    return EnergySourceManager.assignSource(sourceMiner, target);
 }
 
 ResourceManager._createResourceIndex = function(room){

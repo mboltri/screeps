@@ -31,14 +31,14 @@ SpawnManager.manageSpawns = function() {
             if(!(spawn.spawning || 0) && spawnQueue.length) {
                 var toSpawnObject = room.memory.spawnQueue.shift();
                 var toSpawnProto = _.find(RoleIndex, {'roleName': toSpawnObject.roleName});
-                var body = toSpawnProto.constructBody(spawn.energyCapacity);
+                var body = toSpawnProto.constructBody(room.energyCapacityAvailable);
                 var code = spawn.canCreateCreep(body);
                 if(code === OK) {
                     if(Log.isInfoEnabled() && spawn.spawning) {
                         Log.info('spawn "' + spawn.name + '" is spawning a new ' + 
-                        toSpawnProto.roleName, moduleName);
+                            toSpawnProto.roleName, moduleName);
                     }
-                    toSpawnProto.create(spawn) ;
+                    toSpawnProto.create(spawn, room.energyCapacityAvailable) ;
                 } else {
                     if(code === ERR_NOT_ENOUGH_ENERGY || code === ERR_BUSY){
                         if(Log.isDebugEnabled()) {

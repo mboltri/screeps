@@ -6,5 +6,8 @@ var Notifier = {};
 module.exports = Notifier;
 
 Notifier.notifyOfCreepDeath = function(creep) {
+    if(Log.isInfoEnabled()) {
+        Log.info(creep.name + ' (' + creep.roleName + ') has died', moduleName);
+    }
     ResourceManager.handleCreepDeath(creep);
 }
