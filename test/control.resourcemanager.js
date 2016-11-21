@@ -8,7 +8,7 @@ module.exports = ResourceManager;
 
 ResourceManager.assignSource = function(sourceMiner) {
     ResourceManager._createResourceIndex(sourceMiner.room);
-    room.memory.resourceIndex.canSupportMiners = ResourceManager._canSupportMiners(room);
+    sourceMiner.room.memory.resourceIndex.canSupportMiners = ResourceManager._canSupportMiners(sourceMiner.room);
     return EnergySourceManager.assignSource(sourceMiner);
 }
 
