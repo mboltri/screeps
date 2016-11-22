@@ -5,10 +5,10 @@ var moduleName = 'control.rolemanager';
 var RoleManager = {};
 module.exports = RoleManager;
 
-RoleManager.assignWorkByRole = function(creep) {
+RoleManager.assignWorkByRole = function(creep, index) {
     RoleIndex.forEach( function(role) {
         if(creep.memory.roleName == role.roleName) {
-            role.run(creep);
+            role.run(creep, index);
         }
     });
 };

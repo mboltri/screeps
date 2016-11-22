@@ -6,7 +6,7 @@ var moduleName = 'control.spawnmanager';
 var SpawnManager = {};
 module.exports = SpawnManager;
 
-SpawnManager.SPAWN_QUEUE_REFRESH_RATE = 3; //how many ticks to wait before reevaluating the Spawn Queue
+SpawnManager.SPAWN_QUEUE_REFRESH_RATE = 10; //how many ticks to wait before reevaluating the Spawn Queue
 
 SpawnManager.manageSpawns = function() {
     _.values(Game.rooms).forEach( function(room) {
@@ -84,13 +84,13 @@ SpawnManager._addRoleToQueue = function(room, role, creepsInRoom, rolesInQueue, 
     }
     if(inRoom + inQueue < role.desired) {
         var insertIndex = _.sortedIndex(_.map(spawnQueue, 'priority'), role.priority);
-        for(var i = 0; i < (role.desired - inRoom); i++) {
+        for(var i = 0; i < (role.desired - (inRoom + inQueue)); i++) {
             spawnQueue.splice(insertIndex, 0, role);
             rolesAdded++;
         }
         room.memory.spawnQueue = spawnQueue;
         if(Log.isDebugEnabled()) {
-            Log.debug('Added ' + (role.desired - inRoom) + ' ' + role.roleName + '(s) to queue', moduleName);
+            Log.debug('Added ' + (role.desired - (inRoom + inQueue)) + ' ' + role.roleName + '(s) to queue', moduleName);
         }
     }
 };

@@ -10,7 +10,11 @@ Role.desired = 2;
 Role.priority = 5;
 
 Role.run = function(creep) {
-   RoleCommon.run(creep) ;
+   var code = RoleCommon.run(creep);
+    if(code !== 0) {
+        return;
+    }
+    
    if(creep.memory.upgrading && creep.carry.energy == 0) {
         creep.memory.upgrading = false;
     }
