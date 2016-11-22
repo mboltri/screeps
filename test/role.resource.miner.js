@@ -16,6 +16,10 @@ Role.bodyPartMap[MOVE]  = BodyConstructor.PRIORITY.LOW;
 Role.bodyPartMap[CARRY] = BodyConstructor.PRIORITY.LOW;
 Role.bodyPartMap[WORK]  = BodyConstructor.PRIORITY.HIGH;
 
+Role.MODE_MOVE = 'move';
+Role.MODE_CONSTRUCT = 'construct';
+Role.MODE_HARVEST = 'harvest';
+
 Role.partLimitMap        = {};
 Role.partLimitMap[MOVE]  = 2;
 Role.partLimitMap[CARRY] = 1;
@@ -30,18 +34,49 @@ Role.run = function(creep) {
     }
     
     var source = Game.getObjectById(creep.memory.assignedSourceId);
-    if(creep.pos.isNearTo(source)) {
+    var container = Game.getObjectById(creep.memory.assignedContainerId);
+    if(creep.memory.mode = Role.MODE_MOVE) {
         creep.moveTo(source);
+        if(creep.pos.nearTo(source)) {
+            creep.memory.mode = Role.MODE_CONSTRUCT;
+            Role.placeContainerSite(creep);
+        }
+    } else if(creep.memory.mode = Role.MODE_CONSTRUCT) {
+        creep.harvest(source);
+        creep.build(container);
+        if(Game.getObjectById(creep.memory.assignedContainerId) === null) {
+            creep.memory.mode = Role.MODE_HARVEST;
+            EnergySourceManager.assignContainer(creep);
+        }
+    } else if(creep.memory.mode = Role.MODE_HARVEST) {
+        creep.harvest(source);
+        creep.transfer(container, RESOURCE_ENERGY)
+    } else {
+        if(Log.isErrorEnabled()) {
+            Log.error(creep.name ' does not have a mode defined!');
+            creep.memory.mode = Role.MODE_MOVE;
+        }
     }
-    if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
-        
-    }
-};
+}; 
 
-Role.create = function(spawn) {
-    RoleCommon.createGeneric(spawn, Role.roleName);
+Role.create = function(spawn, room) {
+    var name = RoleCommon.createName(Role.roleName, room.name);
+    spawn.createCreep()
 };
 
 Role.constructBody = function(energyLimit) {
-    return BodyConstructor.constructBody(Role.bodyPartMap, energyLimit, );
+    return BodyConstructor.constructBody(Role.bodyPartMap, energyLimit, Role.partLimitMap);
 };
+
+Role.placeContainerSite = function(creep) {
+    creep.memory.assignedContainerId = null; //TODO
+}
+
+Role.assignContainer = function(creep) {
+    var container = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {filter: {structureType: STRUCTURE_CONTAINER}});
+    if(container.length === 0) {
+        return -1;
+    } else {
+        creep.memory.
+    }
+}
